@@ -18,6 +18,8 @@ const objectTraps: ProxyHandler<ProxyState> = {
     if (typeof value !== "object") {
       return value;
     }
+    /* 如果没有下面这个判断 我们即使修改了对象，它的modified也为false
+    因此返回的对象将和原对象地址相等！*/
     // 获取的该对象是 base上的 还没有复制 应该对它进行复制
     if (state.base[prop] === value) {
       // 将base浅拷贝到copy中
