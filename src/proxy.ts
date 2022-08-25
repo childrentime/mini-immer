@@ -5,6 +5,7 @@ export interface ProxyState {
   modified: boolean;
   base: any;
   copy: any;
+  parent?: ProxyState
 }
 
 const objectTraps: ProxyHandler<ProxyState> = {
@@ -26,7 +27,7 @@ const objectTraps: ProxyHandler<ProxyState> = {
       if (!state.copy) {
         state.copy = { ...state.base };
       }
-      return (state.copy[prop as any] = createProxy(value));
+      return (state.copy[prop as any] = createProxy(value,state));
     }
     return value;
   },
@@ -37,8 +38,8 @@ const objectTraps: ProxyHandler<ProxyState> = {
       if (!state.copy) {
         state.copy = { ...state.base };
       }
-      // 将modified属性修改为true
-      state.modified = true;
+      // 将state的modified属性以及parent都修改为true
+      markChanged(state)
     }
 
     state.copy![prop] = value;
@@ -46,12 +47,23 @@ const objectTraps: ProxyHandler<ProxyState> = {
   },
 };
 
-export function createProxy<T>(base: T) {
+export function createProxy<T>(base: T,parent?: ProxyState) {
   const state: ProxyState = {
     modified: false,
     base: base,
     copy: null,
+    parent
   };
   const proxy = new Proxy(state, objectTraps);
   return proxy;
+}
+
+// 递归标记
+function markChanged(state: ProxyState) {
+	if (!state.modified) {
+		state.modified = true
+		if (state.parent) {
+			markChanged(state.parent)
+		}
+	}
 }

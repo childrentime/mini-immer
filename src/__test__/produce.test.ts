@@ -14,11 +14,10 @@ describe("mini-immer", () => {
       },
     };
     const nextState = produce(baseState, (draftState) => {
-      draftState.name = "李四";
       draftState.address.city = "咸宁";
     });
     expect(nextState).toEqual({
-      name: "李四",
+      name: "张三",
       address: {
         street: "狮子山",
         city: "咸宁",
@@ -28,7 +27,9 @@ describe("mini-immer", () => {
         height: 175,
       },
     });
+    expect(nextState !== baseState).toBeTruthy();
     expect(nextState.property === baseState.property).toBeTruthy();
+    expect(nextState.name === baseState.name).toBeTruthy();
   });
 
   it("can update readonly state via standard api2", () => {
